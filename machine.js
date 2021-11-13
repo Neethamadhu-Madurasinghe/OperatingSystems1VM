@@ -6,7 +6,7 @@ const fullCode = document.getElementById("full-code");
 const body = document.querySelector("body");
 const nextInstruction = document.getElementById("next-instruction");
 const memorySize = 100;
-const timeDay = 500;
+const timeDay = 250;
 
 createMemoryTable();
 
@@ -51,6 +51,14 @@ class Stack {
         }
     }
 
+    peekBefore() {
+        if (this.array.length > 0) {
+            return this.array[this.array.length - 2];
+        } else {
+            return false;
+        }
+    }
+
 }
 
 
@@ -78,7 +86,7 @@ function movv(opr) {
     reg[opr[0]] = Number(opr[1]);
     reg['pc'] = reg['pc'] + 1;
 
-    updateReg(opr[0], Number(opr[1]));
+    updateReg(opr[0], reg[opr[0]]);
     updateReg('pc', reg['pc']);
 }
 
@@ -190,6 +198,7 @@ function pop(opr) {
     reg['sp'] = Number(reg['sp']) - 1;
     reg['pc'] = reg['pc'] + 1;
 
+    updateReg(opr[0], reg[opr[0]]);
     updateReg('sp', reg['sp']);
     updateReg('pc', reg['pc']);
 }
@@ -252,24 +261,67 @@ fileSelector.addEventListener('change', () => {
 });
 
 nextButton.addEventListener('click', (e) => {
-    start();
+    goForward();
 
 });
 
+
 prevButton.addEventListener('click', (e) => {
+    goReverse()
+
+});
+
+function goForward() {
+    if (stack.peek().reg['halt'] != true) {
+
+        let prevReg = document.querySelectorAll('.update');
+        //console.log(prevReg);
+        prevReg.forEach((e) => {
+            e.classList.remove('update');
+        })
+    }
+    start();
+}
+
+function goReverse() {
     if (stack.array.length > 1) {
+        if (stack.peek().reg['halt'] != true) {
+
+            let prevReg = document.querySelectorAll('.update');
+            //console.log(prevReg);
+            prevReg.forEach((e) => {
+                e.classList.remove('update');
+                //console.log(e)
+            })
+        }
         let newObj = stack.pop();
         let oldObj = stack.peek();
+        reg = oldObj.reg;
+        memory = oldObj.memory;
+        console.log(newObj.reg);
+        console.log(oldObj.reg);
         goBackRegister(newObj.reg, oldObj.reg);
         goBackMemory(newObj.memory, oldObj.memory);
         goBackOutput(newObj.outputArray, oldObj.outputArray);
         setNextInstruction(oldObj.memory[oldObj.reg['pc']]);
         addEffectBackward(oldObj.reg['pc']);
+
+        let temp2Ob = stack.peekBefore()
+        if (stack.array.length >= 2) {
+            goBackAndStoreLastUsedReg(temp2Ob.reg, oldObj.reg)
+        }
     }
+}
 
 
-});
-
+function goBackAndStoreLastUsedReg(newReg, oldReg) {
+    for (const [key, value] of Object.entries(newReg)) {
+        if (Number(oldReg[key]) != Number(value)) {
+            let register = document.getElementById(key);
+            register.classList.add('update');
+        }
+    }
+}
 
 fullCode.addEventListener('click', () => {
     while (reg['halt'] === false) {
@@ -279,8 +331,7 @@ fullCode.addEventListener('click', () => {
 
 body.addEventListener('keypress', (e) => {
     if (e.key == 's') {
-        console.log(reg['halt']);
-        start();
+        goForward();
 
         nextButton.classList.add('keypressed');
         setTimeout(function() {
@@ -290,13 +341,7 @@ body.addEventListener('keypress', (e) => {
 
     } else if (e.key == 'w') {
         if (stack.array.length > 1) {
-            let newObj = stack.pop();
-            let oldObj = stack.peek();
-            goBackRegister(newObj.reg, oldObj.reg);
-            goBackMemory(newObj.memory, oldObj.memory);
-            goBackOutput(newObj.outputArray, oldObj.outputArray);
-            setNextInstruction(oldObj.memory[oldObj.reg['pc']]);
-            addEffectBackward(oldObj.reg['pc']);
+            goReverse()
 
             prevButton.classList.add('keypressed');
             setTimeout(function() {
@@ -328,7 +373,7 @@ function start() {
         let i = reg['pc'];
         addEffect(reg['pc']);
         op = memory[i][0];
-        console.log(JSON.stringify(memory[i]));
+        //console.log(JSON.stringify(memory[i]));
         window[op](memory[i].slice(1));
         setNextInstruction(memory[reg['pc']]);
 
@@ -352,23 +397,29 @@ function start() {
             stack.push(new State(reg, memory, outputArray)) //push into stack only once time after halt is true
         }
 
-        console.log(memory);
-        console.log(reg);
+        // console.log(memory);
+        // console.log(reg);
     } else {
         stack.push(new State(reg, memory, outputArray))
-        console.log(stack);
+            //console.log(stack);
     }
 
 
 }
 
-function updateReg(regName, value) {
+function updateReg(regName, value, isForward = true) {
     let register = document.getElementById(regName);
+    //console.log("register", regName, "Current value ", register.textContent, "changed value ", value);
     register.textContent = value;
 
-    register.classList.add('update');
+    register.classList.add('updateTemp');
+    if (isForward) {
+        register.classList.add('update');
+    }
+
+
     setTimeout(function() {
-        register.classList.remove('update');
+        register.classList.remove('updateTemp');
     }, timeDay);
 }
 
@@ -389,7 +440,8 @@ function updateMemory(memAddress, value) {
 function goBackRegister(newReg, oldReg) {
     for (const [key, value] of Object.entries(newReg)) {
         if (oldReg[key] != value) {
-            updateReg(key, oldReg[key]);
+            // console.log(value, oldReg[key]);
+            updateReg(key, oldReg[key], false);
         }
     }
 }

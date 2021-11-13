@@ -146,6 +146,14 @@ td {
     text-align: center;
 }
 
+.updateTemp {
+    font-family: var(--ff-primary);
+    width: 75px;
+    color: rgb(0, 0, 0);
+    background-color: rgb(252, 195, 6);
+    text-align: center;
+}
+
 #output-heading {
     margin-left: 10%;
 }

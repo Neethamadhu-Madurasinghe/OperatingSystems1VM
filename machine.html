@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css" />
+
+    <title>Virtual Machine</title>
+
+</head>
+
+<body>
+    <div class="controls">
+        <input class="bton" type="file" name="asm-file" id="file-selector" accept=".asm">
+        <button class="bton" id="next-button" disabled>Next step</button>
+        <button class="bton" id="prev-button" disabled>Previous step</button>
+        <button class="bton" id="full-code" disabled>Execute entire code</button>
+    </div>
+
+
+    <div class="machine">
+        <h2 id="next-instruction"></h2>
+        <div class="registers">
+            <h2>Registers</h2>
+            <table>
+                <tr>
+                    <td class="reg">A</td>
+                    <td class="reg">B</td>
+                    <td class="reg">C</td>
+                    <td class="reg">D</td>
+                    <td class="reg">E</td>
+                    <td class="reg">F</td>
+                    <td class="reg">SP</td>
+                    <td class="reg">ACC</td>
+                    <td class="reg">PC</td>
+                    <td class="reg">IVEC</td>
+                    <td class="reg">INT</td>
+                    <td class="reg">TIMER</td>
+                    <td class="reg">HALT</td>
+
+                </tr>
+                <tr>
+                    <td class="reg" id="a">0</td>
+                    <td class="reg" id="b">0</td>
+                    <td class="reg" id="c">0</td>
+                    <td class="reg" id="d">0</td>
+                    <td class="reg" id="e">0</td>
+                    <td class="reg" id="f">0</td>
+                    <td class="reg" id="sp">0</td>
+                    <td class="reg" id="acc">0</td>
+                    <td class="reg" id="pc">0</td>
+                    <td class="reg" id="ivec">0</td>
+                    <td class="reg" id="int">0</td>
+                    <td class="reg" id="timer">0</td>
+                    <td class="reg" id="halt">false</td>
+
+                </tr>
+            </table>
+        </div>
+
+
+        <div class="memory">
+            <h2>Memory</h2>
+            <table id="memory-table">
+
+            </table>
+        </div>
+    </div>
+
+
+    <div class="output-div">
+        <h2 id="output-heading">Output</h2>
+        <textarea name="output" id="vm-console" cols="25" rows="20" class="output" readonly></textarea>
+    </div>
+
+    <script src="machine.js"></script>
+</body>
+
+</html>
